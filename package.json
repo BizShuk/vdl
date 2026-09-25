@@ -1,0 +1,17 @@
+{
+  "name": "video-downloader",
+  "version": "0.0.0",
+  "private": true,
+  "description": "多平台影片下載 CLI (vdl)：支援 YouTube/Instagram/TikTok 等平台，提供 mp3/mp4 與 1~5 品質分級，包裝 yt-dlp + ffmpeg",
+  "scripts": {
+    "dev": "go run .",
+    "test": "go test ./... -count=1",
+    "build": "go build -o bin/vdl .",
+    "deploy": "pnpm run build && go install .",
+    "lint": "gofmt -l . && go vet ./...",
+    "ci": "pnpm run lint && pnpm run test && pnpm run build",
+    "clean": "rm -rf bin tmp node_modules",
+    "run:setup": "./scripts/run.sh",
+    "run:install": "./scripts/setup.sh"
+  }
+}

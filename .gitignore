@@ -2,6 +2,10 @@
 bin/
 *.exe
 
+# Node & Workspace
+node_modules/
+tmp/
+
 # OS files
 .DS_Store
 
