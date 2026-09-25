@@ -8,9 +8,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/bizshuk/video-downloader/pkg/config"
-	"github.com/bizshuk/video-downloader/pkg/download"
-	"github.com/bizshuk/video-downloader/svc"
+	"github.com/bizshuk/vdl/pkg/config"
+	"github.com/bizshuk/vdl/pkg/download"
+	"github.com/bizshuk/vdl/svc"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

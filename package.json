@@ -1,5 +1,5 @@
 {
-  "name": "video-downloader",
+  "name": "vdl",
   "version": "0.0.0",
   "private": true,
   "description": "多平台影片下載 CLI (vdl)：支援 YouTube/Instagram/TikTok 等平台，提供 mp3/mp4 與 1~5 品質分級，包裝 yt-dlp + ffmpeg",

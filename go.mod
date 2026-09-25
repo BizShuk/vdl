@@ -1,4 +1,4 @@
-module github.com/bizshuk/video-downloader
+module github.com/bizshuk/vdl
 
 go 1.26.6
 

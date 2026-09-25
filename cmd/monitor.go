@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bizshuk/video-downloader/pkg/config"
-	"github.com/bizshuk/video-downloader/pkg/tui"
+	"github.com/bizshuk/vdl/pkg/config"
+	"github.com/bizshuk/vdl/pkg/tui"
 	"github.com/spf13/cobra"
 )
 

@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/bizshuk/video-downloader/pkg/download"
-	"github.com/bizshuk/video-downloader/svc"
+	"github.com/bizshuk/vdl/pkg/download"
+	"github.com/bizshuk/vdl/svc"
 )
 
 func init() {

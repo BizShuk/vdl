@@ -34,10 +34,10 @@ description: Use when migrating from ytdl to video-downloader (vdl), replacing Y
 
 ### 1. 安裝與二進位編譯
 
-在 `~/projects/tools/video-downloader` 執行安裝：
+在 `~/projects/tools/vdl` 執行安裝：
 
 ```bash
-cd ~/projects/tools/video-downloader
+cd ~/projects/tools/vdl
 pnpm run build && pnpm run deploy
 ```
 

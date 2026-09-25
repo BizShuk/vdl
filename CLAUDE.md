@@ -1,12 +1,12 @@
 # CLAUDE.md — vdl 技術脈絡 (Technical Context)
 
 General-purpose video download CLI。業務定義見 [README.md](README.md)。
-Module `github.com/bizshuk/video-downloader`，Go 1.26。TUI 採用 `bubbletea` 與 `lipgloss`，CLI 採用 `cobra` + Two layers 結構。
+Module `github.com/bizshuk/vdl`，Go 1.26。TUI 採用 `bubbletea` 與 `lipgloss`，CLI 採用 `cobra` + Two layers 結構。
 
 ## 結構與 ownership (遵循 golang-dev)
 
 ```text
-video-downloader/
+vdl/
 ├── main.go                     # cmd.Execute() only + blank-imports cmd/<platform> 與 svc/<platform>
 ├── cmd/
 │   ├── root.go                 # RootCmd + Execute，支援直接傳 URL 抓取與旗標前置正規化

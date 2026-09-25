@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/bizshuk/video-downloader/cmd"
+	"github.com/bizshuk/vdl/cmd"
 )
 
 func TestMainCommandStructure(t *testing.T) {

@@ -1,7 +1,7 @@
 package bilibili
 
 import (
-	"github.com/bizshuk/video-downloader/cmd"
+	"github.com/bizshuk/vdl/cmd"
 	"github.com/spf13/cobra"
 )
 

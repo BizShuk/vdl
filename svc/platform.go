@@ -7,7 +7,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/bizshuk/video-downloader/pkg/download"
+	"github.com/bizshuk/vdl/pkg/download"
 )
 
 // Options holds common download parameters passed to platform services.

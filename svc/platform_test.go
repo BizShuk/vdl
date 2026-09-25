@@ -3,14 +3,14 @@ package svc_test
 import (
 	"testing"
 
-	"github.com/bizshuk/video-downloader/svc"
-	_ "github.com/bizshuk/video-downloader/svc/bilibili"
-	_ "github.com/bizshuk/video-downloader/svc/facebook"
-	_ "github.com/bizshuk/video-downloader/svc/generic"
-	_ "github.com/bizshuk/video-downloader/svc/instagram"
-	_ "github.com/bizshuk/video-downloader/svc/tiktok"
-	_ "github.com/bizshuk/video-downloader/svc/twitter"
-	_ "github.com/bizshuk/video-downloader/svc/youtube"
+	"github.com/bizshuk/vdl/svc"
+	_ "github.com/bizshuk/vdl/svc/bilibili"
+	_ "github.com/bizshuk/vdl/svc/facebook"
+	_ "github.com/bizshuk/vdl/svc/generic"
+	_ "github.com/bizshuk/vdl/svc/instagram"
+	_ "github.com/bizshuk/vdl/svc/tiktok"
+	_ "github.com/bizshuk/vdl/svc/twitter"
+	_ "github.com/bizshuk/vdl/svc/youtube"
 )
 
 func TestDetect(t *testing.T) {

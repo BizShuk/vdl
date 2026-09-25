@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bizshuk/video-downloader/pkg/config"
+	"github.com/bizshuk/vdl/pkg/config"
 	"github.com/spf13/cobra"
 )
 
