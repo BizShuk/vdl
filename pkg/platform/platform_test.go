@@ -39,7 +39,7 @@ func TestNeedsCookies(t *testing.T) {
 		want bool
 	}{
 		{Instagram, true},
-		{TikTok, true},
+		{TikTok, false},
 		{Facebook, true},
 		{YouTube, false},
 		{Twitter, false},
@@ -64,8 +64,8 @@ func TestExtraArgs(t *testing.T) {
 		cookieBrowser string
 		want          []string
 	}{
-		{"instagram without cookies", Instagram, "", []string{"--extractor-args", "instagram:api_type=graphql"}},
-		{"instagram with cookies", Instagram, "chrome", []string{"--cookies-from-browser", "chrome", "--extractor-args", "instagram:api_type=graphql"}},
+		{"instagram without cookies", Instagram, "", nil},
+		{"instagram with cookies", Instagram, "chrome", []string{"--cookies-from-browser", "chrome"}},
 		{"youtube with cookies", YouTube, "firefox", []string{"--cookies-from-browser", "firefox"}},
 		{"youtube without cookies", YouTube, "", nil},
 		{"tiktok with cookies", TikTok, "safari", []string{"--cookies-from-browser", "safari"}},

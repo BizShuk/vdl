@@ -52,10 +52,13 @@ func Detect(rawURL string) Platform {
 // String returns the platform name.
 func (p Platform) String() string { return string(p) }
 
-// NeedsCookies returns true if the platform typically requires browser cookies for downloads.
+// NeedsCookies reports whether the platform may require browser cookies.
+// This is advisory: public content may work without cookies, but private or
+// age-gated content will need them. The caller should hint the user rather
+// than auto-inject.
 func (p Platform) NeedsCookies() bool {
 	switch p {
-	case Instagram, TikTok, Facebook:
+	case Instagram, Facebook:
 		return true
 	default:
 		return false
@@ -68,10 +71,6 @@ func (p Platform) ExtraArgs(cookieBrowser string) []string {
 	var args []string
 	if cookieBrowser != "" {
 		args = append(args, "--cookies-from-browser", cookieBrowser)
-	}
-	switch p {
-	case Instagram:
-		args = append(args, "--extractor-args", "instagram:api_type=graphql")
 	}
 	return args
 }

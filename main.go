@@ -122,13 +122,16 @@ func run(mediaTypeFlag string, quality int, cookieBrowser string, outputDir stri
 	for _, url := range urls {
 		p := platform.Detect(url)
 
-		// Auto-set cookie browser for platforms that need auth, unless user overrides.
-		// Use -cookies-from=none to explicitly skip.
+		// Resolve cookie browser: user-specified, or skip.
+		// Use -cookies-from=none to suppress the hint.
 		cb := cookieBrowser
 		if cb == "none" {
 			cb = ""
-		} else if cb == "" && p.NeedsCookies() {
-			cb = "chrome"
+		}
+
+		// Print a hint for platforms that may need cookies, but don't auto-inject.
+		if cb == "" && p.NeedsCookies() {
+			fmt.Fprintf(os.Stderr, "    hint: %s may need cookies. If download fails, try: -cookies-from chrome\n", p.Label())
 		}
 
 		request := download.Request{
