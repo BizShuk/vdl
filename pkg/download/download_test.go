@@ -3,8 +3,6 @@ package download
 import (
 	"strings"
 	"testing"
-
-	"github.com/bizshuk/video-downloader/pkg/platform"
 )
 
 func TestRequestValidate(t *testing.T) {
@@ -59,9 +57,9 @@ func TestRequestArgs(t *testing.T) {
 		Type:      TYPE_MP4,
 		Quality:   3,
 		OutputDir: "/out",
-		Platform:  platform.Instagram,
+		ExtraArgs: []string{"--cookies-from-browser", "chrome"},
 	}
-	args := req.args("/tmp/path")
+	args := req.Args("/tmp/path")
 	joined := strings.Join(args, " ")
 	if !strings.Contains(joined, "--no-playlist") {
 		t.Error("args missing --no-playlist")
@@ -72,27 +70,8 @@ func TestRequestArgs(t *testing.T) {
 	if !strings.Contains(joined, "--format") {
 		t.Error("args missing --format for mp4")
 	}
-}
-
-func TestRequestArgsWithCookies(t *testing.T) {
-	req := Request{
-		URL:           "https://instagram.com/reel/abc",
-		Type:          TYPE_MP4,
-		Quality:       3,
-		OutputDir:     "/out",
-		Platform:      platform.Instagram,
-		CookieBrowser: "chrome",
-	}
-	args := req.args("/tmp/path")
-	found := false
-	for i, a := range args {
-		if a == "--cookies-from-browser" && i+1 < len(args) && args[i+1] == "chrome" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Errorf("args missing --cookies-from-browser chrome, got: %v", args)
+	if !strings.Contains(joined, "--cookies-from-browser chrome") {
+		t.Error("args missing extra args")
 	}
 }
 
@@ -102,9 +81,8 @@ func TestRequestArgsURLIsLast(t *testing.T) {
 		Type:      TYPE_MP3,
 		Quality:   1,
 		OutputDir: "/out",
-		Platform:  platform.Generic,
 	}
-	args := req.args("/tmp/path")
+	args := req.Args("/tmp/path")
 	if len(args) == 0 {
 		t.Fatal("args is empty")
 	}

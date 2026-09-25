@@ -12,8 +12,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/bizshuk/video-downloader/pkg/platform"
 )
 
 const (
@@ -21,14 +19,13 @@ const (
 	FFMPEG_BIN = "ffmpeg"
 )
 
-// Request is one URL to fetch at one media type and quality tier.
+// Request is one URL to fetch at one media type and quality tier with optional platform extra args.
 type Request struct {
-	URL           string
-	Type          MediaType
-	Quality       int
-	OutputDir     string
-	Platform      platform.Platform
-	CookieBrowser string // browser name for --cookies-from-browser (empty = skip)
+	URL       string
+	Type      MediaType
+	Quality   int
+	OutputDir string
+	ExtraArgs []string
 }
 
 // Validate reports whether the request can be handed to yt-dlp.
@@ -42,10 +39,10 @@ func (r Request) Validate() error {
 	return ValidateQuality(r.Quality)
 }
 
-// args builds the full yt-dlp argument list. The final path is written to
+// Args builds the full yt-dlp argument list. The final path is written to
 // pathFile rather than printed: yt-dlp emits progress on its own stdout, so a
 // printed path would be interleaved with it instead of standing alone.
-func (r Request) args(pathFile string) []string {
+func (r Request) Args(pathFile string) []string {
 	outputDir := r.OutputDir
 	if outputDir == "" {
 		outputDir = "."
@@ -59,8 +56,10 @@ func (r Request) args(pathFile string) []string {
 		"--print-to-file", "after_move:filepath", pathFile,
 		"--output", filepath.Join(outputDir, "%(title)s.%(ext)s"),
 	}
-	args = append(args, formatArgs(r.Type, r.Quality)...)
-	args = append(args, r.Platform.ExtraArgs(r.CookieBrowser)...)
+	args = append(args, FormatArgs(r.Type, r.Quality)...)
+	if len(r.ExtraArgs) > 0 {
+		args = append(args, r.ExtraArgs...)
+	}
 	return append(args, r.URL)
 }
 
@@ -70,7 +69,7 @@ func Run(ctx context.Context, request Request, stdout, stderr io.Writer) error {
 	if err := request.Validate(); err != nil {
 		return err
 	}
-	if err := checkRuntime(); err != nil {
+	if err := CheckRuntime(); err != nil {
 		return err
 	}
 
@@ -81,7 +80,7 @@ func Run(ctx context.Context, request Request, stdout, stderr io.Writer) error {
 	pathFile.Close()
 	defer os.Remove(pathFile.Name())
 
-	cmd := exec.CommandContext(ctx, YT_DLP_BIN, request.args(pathFile.Name())...)
+	cmd := exec.CommandContext(ctx, YT_DLP_BIN, request.Args(pathFile.Name())...)
 	cmd.Stdout = stderr
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
@@ -100,9 +99,9 @@ func Run(ctx context.Context, request Request, stdout, stderr io.Writer) error {
 	return err
 }
 
-// checkRuntime fails early with an actionable message when a required external
+// CheckRuntime fails early with an actionable message when a required external
 // binary is absent, instead of surfacing yt-dlp's own late postprocessor error.
-func checkRuntime() error {
+func CheckRuntime() error {
 	for _, bin := range []string{YT_DLP_BIN, FFMPEG_BIN} {
 		if _, err := exec.LookPath(bin); err != nil {
 			return fmt.Errorf("%s not found in PATH: install it with `brew install %s`", bin, bin)

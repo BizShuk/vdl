@@ -3,30 +3,34 @@
 General-purpose CLI that downloads a video URL from **any supported platform**
 as **mp3** or **mp4** at a numbered quality tier. It is a thin wrapper: `yt-dlp`
 fetches the streams and `ffmpeg` performs muxing and transcoding. The platform
-is auto-detected from the URL, and platform-specific authentication (cookies)
-is applied automatically when needed.
+is auto-detected from the URL, or can be explicitly dispatched via platform subcommands.
+
+> **遷移指南**：若由 `ytdl` 升級而來，可參考 [skills/migrate-from-ytdl/SKILL.md](skills/migrate-from-ytdl/SKILL.md)。
 
 ## Supported Platforms
 
-| Platform    | URL Examples                               | Auth           |
-| ----------- | ------------------------------------------ | -------------- |
-| YouTube     | `youtube.com`, `youtu.be`                  | —              |
-| Instagram   | `instagram.com/reel/...`                   | cookies (auto) |
-| TikTok      | `tiktok.com/@user/video/...`               | —              |
-| Twitter / X | `twitter.com`, `x.com`                     | —              |
-| Facebook    | `facebook.com/watch/...`, `fb.watch/...`   | cookies (auto) |
-| Reddit      | `reddit.com`, `v.redd.it`                  | —              |
-| Vimeo       | `vimeo.com/...`                            | —              |
-| Bilibili    | `bilibili.com/video/...`, `b23.tv/...`     | —              |
-| Generic     | any other yt-dlp-supported site            | —              |
-
-Instagram and Facebook default to `--cookies-from-browser chrome`. Override
-with `-cookies-from <browser>` or set to empty to skip.
+| Platform    | Subcommand   | URL Examples                               | Auth           |
+| ----------- | ------------ | ------------------------------------------ | -------------- |
+| YouTube     | `youtube`    | `youtube.com`, `youtu.be`                  | —              |
+| Instagram   | `instagram`  | `instagram.com/reel/...`, `.../p/...`      | cookies (advisory) |
+| TikTok      | `tiktok`     | `tiktok.com/@user/video/...`               | —              |
+| Twitter / X | `twitter`    | `twitter.com`, `x.com`                     | —              |
+| Facebook    | `facebook`   | `facebook.com/watch/...`, `fb.watch/...`   | cookies (advisory) |
+| Reddit      | (generic)    | `reddit.com`, `v.redd.it`                  | —              |
+| Vimeo       | (generic)    | `vimeo.com/...`                            | —              |
+| Bilibili    | `bilibili`   | `bilibili.com/video/...`, `b23.tv/...`     | —              |
+| Generic     | (fallback)   | any other yt-dlp-supported site            | —              |
 
 ## Usage
 
 ```bash
+# 直接下載（自動辨識來源平台）
 vdl [flags] <url>...
+
+# 或透過平台子命令
+vdl <platform> [flags] <url>...
+
+# 工具命令
 vdl config
 vdl monitor    # alias: vdl m
 ```
@@ -37,14 +41,20 @@ vdl monitor    # alias: vdl m
 | --------------------- | -------------------------------------------- |
 | `config`              | show config folder path                      |
 | `monitor` (`m`)       | interactive TUI to browse downloaded files   |
+| `youtube` (`yt`)      | download from YouTube                        |
+| `instagram` (`ig`)    | download from Instagram                      |
+| `tiktok`              | download from TikTok                         |
+| `twitter` (`x`)       | download from Twitter/X                      |
+| `facebook` (`fb`)     | download from Facebook                       |
+| `bilibili` (`bili`)   | download from Bilibili                       |
 
 ### Flags
 
-| Flag             | Default | Meaning                                              |
-| ---------------- | ------- | ---------------------------------------------------- |
-| `-type`          | `mp3`   | output format: `mp3` or `mp4`                        |
-| `-qtype`         | `3`     | quality tier `1` (lowest) to `5` (highest)           |
-| `-cookies-from`  | —       | browser to read cookies from (chrome, firefox, etc.) |
+| Flag (POSIX / Long / Short)   | Default | Meaning                                              |
+| ----------------------------- | ------- | ---------------------------------------------------- |
+| `-type` / `--type` / `-t`     | `mp3`   | output format: `mp3` or `mp4`                        |
+| `-qtype` / `--qtype` / `-q`   | `3`     | quality tier `1` (lowest) to `5` (highest)           |
+| `-cookies-from` / `--cookies-from` | —  | browser to read cookies from (chrome, firefox, etc.) |
 
 Downloads land in `~/.config/vdl/data` (fixed).
 
@@ -67,14 +77,14 @@ Playlist URLs download only the single referenced video.
 # YouTube
 vdl https://youtu.be/VIDEO_ID                              # 192 kbps mp3
 vdl -type mp4 -qtype 5 https://youtu.be/VIDEO_ID           # best quality mp4
+vdl youtube -t mp4 -q 5 https://youtu.be/VIDEO_ID          # via platform subcommand
 
 # Instagram Reel
-vdl -type mp4 https://instagram.com/reel/ABC123/           # auto-uses Chrome cookies
+vdl -type mp4 https://instagram.com/reel/ABC123/           # auto-detected
+vdl instagram -t mp4 -q 5 https://instagram.com/reel/ABC/  # via instagram subcommand
 
-# TikTok
+# TikTok & Twitter
 vdl -type mp4 https://tiktok.com/@user/video/123
-
-# Twitter/X
 vdl -type mp4 https://x.com/user/status/123
 
 # Explicit cookie browser override
@@ -104,6 +114,3 @@ starts.
 ```bash
 brew install yt-dlp ffmpeg
 ```
-
-Download only material you have the right to download, and respect the source
-site's terms of service.

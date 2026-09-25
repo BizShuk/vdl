@@ -1,55 +1,56 @@
 # CLAUDE.md — vdl 技術脈絡 (Technical Context)
 
 General-purpose video download CLI。業務定義見 [README.md](README.md)。
-Module `github.com/bizshuk/video-downloader`，Go 1.26。TUI 採用 `bubbletea` 與 `lipgloss`。
+Module `github.com/bizshuk/video-downloader`，Go 1.26。TUI 採用 `bubbletea` 與 `lipgloss`，CLI 採用 `cobra` + Two layers 結構。
 
-## 結構與 ownership
+## 結構與 ownership (遵循 golang-dev)
 
 ```text
 video-downloader/
-├── main.go              # flag 解析 + subcommand 派工 + 逐 URL 派工 + platform auto-detect
-└── pkg/
-    ├── config/
-    │   └── config.go    # config 與 data 目錄解析與建立 (~/.config/vdl)
-    ├── download/
-    │   ├── quality.go   # MediaType 與 quality tier → yt-dlp format selector
-    │   └── download.go  # Request 驗證、runtime 檢查、exec yt-dlp (含 platform extra args)
-    ├── platform/
-    │   └── platform.go  # URL hostname → Platform 自動偵測、per-platform auth/args
-    └── tui/
-        ├── file.go      # 下載檔案讀取、格式化、系統預設開啟
-        ├── model.go     # Bubble Tea Model、狀態轉換、事件迴圈
-        ├── run.go       # TUI 程式進入點 (alt-screen)
-        ├── view.go      # 視圖渲染（Header/Banner/Table/Footer 高度預算）
-        └── width.go     # 字符寬度測量與截斷（runewidth 私有實例）
+├── main.go                     # cmd.Execute() only + blank-imports cmd/<platform> 與 svc/<platform>
+├── cmd/
+│   ├── root.go                 # RootCmd + Execute，支援直接傳 URL 抓取與旗標前置正規化
+│   ├── monitor.go              # monitor (alias m) — interactive TUI
+│   ├── config.go               # config
+│   ├── youtube.go              # 第一層平台指令群組 (package cmd)
+│   ├── youtube/                # 第二層平台指令 (package youtube)
+│   │   └── download.go
+│   ├── instagram.go            # 第一層平台指令群組
+│   ├── instagram/
+│   │   └── download.go
+│   ├── tiktok.go / twitter.go / facebook.go / bilibili.go
+│   └── tiktok/ / twitter/ / facebook/ / bilibili/
+├── svc/
+│   ├── platform.go             # Platform 介面定義、Options 結構與 Registry (Register/Detect/All)
+│   ├── youtube/                # YouTube 平台服務與專屬設定
+│   ├── instagram/              # Instagram 平台服務與認證/cookie 設定
+│   ├── tiktok/ / twitter/ / facebook/ / bilibili/ / generic/
+└── pkg/                        # 通用共用元件 (Common Components)
+    ├── config/                 # config 與 data 目錄解析 (~/.config/vdl)
+    ├── download/               # 通用 yt-dlp 執行、ffmpeg runtime 檢查、Quality Tiers
+    └── tui/                    # Bubble Tea monitor TUI
 ```
 
-`pkg/download` 不認識 flag，`main.go` 不認識 yt-dlp 參數。
-`pkg/platform` 只做 URL → Platform 映射與 per-platform yt-dlp args，不碰網路。
+- `main.go` 位於 repo 根目錄，只負責 `cmd.Execute()` 與 blank-imports。
+- `cmd/<platform>/` 負責 CLI 子命令介面（第一層群組與第二層動詞）。
+- `svc/<platform>/` 負責各平台的特定設定、URL 匹配與業務邏輯，各服務透過 `init()` 自我註冊到 `svc.Register()`。
+- `pkg/` 僅包含與平台無關的共通元件（config, download runner, tui）。
 
 ## 關鍵決策 (Key Decisions)
 
-- CLI 用 **stdlib `flag`** 而非 cobra：使用者要的是 `-type` / `-qtype`
-  單破折號長旗標，pflag 會把 `-type` 當成短旗標叢集解析而失敗。
-- **Platform auto-detection** 從 URL hostname 推斷來源平台，自動套用
-  per-platform yt-dlp 參數（如 `--cookies-from-browser`）。
-- Instagram / Facebook 預設自動使用 `--cookies-from-browser chrome`，
-  使用者可透過 `-cookies-from` 覆蓋或指定其他瀏覽器。
-- 從 `ytdl` 演化而來，完全相容 ytdl 的 quality tier 系統、output contract
-  與 TUI monitor。差異在於新增 platform detection 與 cookie 自動注入。
-- 下載引擎是 **yt-dlp**，支援 1700+ 網站。ffmpeg 同時服務 mp4 合流與
-  mp3 轉檔，兩者在下載開始前一次檢查 (`checkRuntime`)。
+- CLI 遵循 **golang-dev (cobra)** 規範：採用兩層子命令結構，同時在 `Execute()` 前置將使用者慣用的 `-type` / `-qtype` / `-cookies-from` 單破折號旗標無損轉為 POSIX 長旗標，達成與 `ytdl` 100% 向後相容。
+- **透明 URL 派發**：若使用者直接給定 URL（`vdl [flags] <url>...`），自動路由至內建下載器，由 `svc.Detect(url)` 自動匹配所屬平台服務。
+- **Platform 服務隔離**：各平台專屬邏輯（如 Facebook/Instagram 的 Cookies 需求與提取參數）完全封裝於 `svc/<platform>`，底層 `pkg/download` 不含任何平台特化邏輯。
+- 下載引擎是 **yt-dlp**，支援 1700+ 網站。ffmpeg 同時服務 mp4 合流與 mp3 轉檔，下載前一次檢查 (`CheckRuntime`)。
 - 輸出契約：**stdout 只有檔案路徑**，進度與橫幅走 stderr。
 - 輸出目錄固定為 `~/.config/vdl/data`（不存在則自動建立）。
 - 預設 `--no-playlist`：playlist URL 只抓所指向的單支影片。
-- `signal.NotifyContext` 綁 `exec.CommandContext`，Ctrl-C 會連帶終止
-  yt-dlp 子行程，不留孤兒。
+- `signal.NotifyContext` 綁 `exec.CommandContext`，Ctrl-C 連帶終止 yt-dlp 子行程。
 
 ## 開發與驗證 (Development and Verification)
 
 ```bash
-gofmt -l . && go vet ./... && go test ./... -count=1   # 全離線
-go build -o bin/vdl . && ./bin/vdl -help
+pnpm run lint && pnpm run test && pnpm run build
 ```
 
 單元測試全離線（只驗參數映射與 platform detection，不打網路）。

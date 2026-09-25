@@ -75,8 +75,8 @@ func QualityTable(mediaType MediaType) string {
 	return strings.Join(rows, "  ")
 }
 
-// formatArgs turns a media type and tier into yt-dlp selection flags.
-func formatArgs(mediaType MediaType, tier int) []string {
+// FormatArgs turns a media type and tier into yt-dlp selection flags.
+func FormatArgs(mediaType MediaType, tier int) []string {
 	if mediaType == TYPE_MP3 {
 		return []string{
 			"--extract-audio",
