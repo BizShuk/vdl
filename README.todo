@@ -1,0 +1,10 @@
+# README.todo
+
+## Pending
+
+- [ ] Smoke test: download Instagram Reel with `vdl -type mp4 <reel_url>`
+- [ ] Add `go install` to tools/ README.md project list
+- [ ] Add as git submodule to tools/ repo
+- [ ] Consider adding `-cookies` flag for cookie file path (alternative to browser)
+- [ ] Consider adding `--sleep-requests` for rate-limited platforms (Instagram)
+- [ ] Consider platform-specific default quality (e.g. Instagram Reels are usually short, max quality is fine)
