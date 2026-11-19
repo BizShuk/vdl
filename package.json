@@ -8,6 +8,7 @@
     "test": "go test ./... -count=1",
     "build": "go build -o bin/vdl .",
     "deploy": "pnpm run build && go install .",
+    "install": "go install .",
     "lint": "gofmt -l . && go vet ./...",
     "ci": "pnpm run lint && pnpm run test && pnpm run build",
     "clean": "rm -rf bin tmp node_modules",
