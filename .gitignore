@@ -13,3 +13,4 @@ tmp/
 .idea/
 .vscode/
 *.swp
+pnpm-lock.yaml
