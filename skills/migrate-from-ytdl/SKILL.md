@@ -38,7 +38,7 @@ description: Use when migrating from ytdl to video-downloader (vdl), replacing Y
 
 ```bash
 cd ~/projects/tools/vdl
-pnpm run build && pnpm run deploy
+pnpm run install
 ```
 
 這將編譯並安裝 `vdl` 二進位檔至 `$GOPATH/bin`（或 `~/.local/go/bin`）。
